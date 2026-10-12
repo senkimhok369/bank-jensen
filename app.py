@@ -61,7 +61,7 @@ def page(content, user=None):
 
 @app.route("/")
 def index():
-    return page(f"<h1 style='font-size:36px'>BANK<br><span style='color:#c8a44a'>JENSEN</span></h1><p style='opacity:.7'>Private Bank Sultan Digital â€¢ Aman â€¢ PIN Protected â€¢ Elit</p><div class=card><div class=grid2><div class=stat><h2>100+</h2><small>Nasabah Sultan</small></div><div class=stat><h2>PIN 6</h2><small>Secure</small></div></div></div><div class=card><a href='/register' class='btn btn-gold'>BUKA REKENING GRATIS</a><a href='/login' class='btn btn-outline'>LOGIN</a><p style='text-align:center;margin-top:12px;font-size:12px;opacity:.6'>admin / admin123 + PIN: 123456</p></div>")
+    return page(f"<h1 style='font-size:36px'>BANK<br><span style='color:#c8a44a'>JENSEN</span></h1><p style='opacity:.7'>Private Bank Sultan Digital | Aman | PIN Protected | Elit</p><div class=card><div class=grid2><div class=stat><h2>100+</h2><small>Nasabah Sultan</small></div><div class=stat><h2>PIN 6</h2><small>Secure</small></div></div></div><div class=card><a href='/register' class='btn btn-gold'>BUKA REKENING GRATIS</a><a href='/login' class='btn btn-outline'>LOGIN</a><p style='text-align:center;margin-top:12px;font-size:12px;opacity:.6'>admin / admin123 + PIN: 123456</p></div>")
 
 @app.route("/login", methods=["GET","POST"])
 def login():
