@@ -83,7 +83,7 @@ def register():
         acc=f"{random.randint(100,999)}-{random.randint(1000,9999)}-{random.randint(1000,9999)}"
         try:
             conn=get_db();conn.execute("INSERT INTO users (username,password,pin,account_no,created_at) VALUES (?,?,?,?,?)",(u,p,pin,acc,datetime.now().strftime("%d %b %Y")));conn.commit();conn.close()
-            return page(f"<div class=card card-gold><h2>ðŸŽ‰ REKENING JADI!</h2><p>Username: <b>{u}</b><br>No Rek: <b>{acc}</b><br>PIN: <b>{pin}</b><br>Saldo: <b>Rp 100.000.000</b></p><p style='font-size:12px'>*Ingat PIN untuk transfer!</p><a href='/login' class='btn btn-dark'>Login Sekarang</a></div>")
+            return page(f"<div class=card card-gold><h2> REKENING JADI!</h2><p>Username: <b>{u}</b><br>No Rek: <b>{acc}</b><br>PIN: <b>{pin}</b><br>Saldo: <b>Rp 100.000.000</b></p><p style='font-size:12px'>*Ingat PIN untuk transfer!</p><a href='/login' class='btn btn-dark'>Login Sekarang</a></div>")
         except:
             return page("<div class=card>Username sudah dipakai! <a href='/register'>Ganti lain</a></div>")
     return page("<div class=card><h2>Buka Rekening + PIN</h2><p style='opacity:.7'>Dapat 100jt + Buat PIN 6 digit</p><form method=POST><input name=username placeholder='Username' required><input name=password type=password placeholder='Password' required><input name=pin type=number placeholder='PIN 6 digit (contoh 123456)' required maxlength=6><button class='btn btn-gold'>BUKA REKENING</button></form><br><a href='/login'>Sudah punya?</a></div>")
@@ -94,8 +94,8 @@ def dashboard():
     conn=get_db();user=conn.execute("SELECT * FROM users WHERE id=?",(session["user"]["id"],)).fetchone()
     tx=conn.execute("SELECT * FROM transaksi WHERE from_user=? OR to_user=? ORDER BY id DESC LIMIT 8",(user["username"],user["username"])).fetchall();conn.close()
     session["user"]=dict(user)
-    tx_html = "".join([f"<tr><td>{t['created_at']}</td><td>{'â¬‡ï¸' if t['to_user']==user['username'] else 'â¬†ï¸'} {t['from_user'] if t['to_user']==user['username'] else t['to_user']}<br><small style='opacity:.5'>{t['note']}</small></td><td style='color:{'#4ade80' if t['to_user']==user['username'] else '#ff6b6b'}'>Rp {t['amount']:,}</td></tr>" for t in tx]) or "<tr><td colspan=3 style='text-align:center;opacity:.5'>Belum ada transaksi</td></tr>"
-    return page(f"<div class=card card-gold><small>{user['account_no']} â€¢ {user['created_at']} â€¢ PIN: {user['pin']}</small><h2 style='margin:6px 0'>Halo, {user['username']} ðŸ‘‘</h2><h1 style='font-size:32px'>Rp {user['balance']:,}</h1><span class=badge style='background:#0003;color:#000;border-color:#0003'>Saldo Aktif â€¢ PIN Protected</span></div><div class=card><div class=grid2><a href='/transfer' class='btn btn-gold'>ðŸ’¸ Transfer + PIN</a><a href='/topup' class='btn btn-dark'>ðŸ’° TopUp</a><a href='/qris' class='btn btn-dark'>ðŸ“± QRIS</a><a href='/history' class='btn btn-dark'>ðŸ“œ History</a></div><a href='/ganti-pin' class='btn btn-outline' style='margin-top:8px'>ðŸ”‘ Ganti PIN</a></div><div class=card><h3>Transaksi Terakhir</h3><table><tr><th>Tgl</th><th>Detail</th><th>Nominal</th></tr>{tx_html}</table><br><a href='/history' class='btn btn-outline'>Lihat Semua</a></div>", user=user)
+    tx_html = "".join([f"<tr><td>{t['created_at']}</td><td>{'IN' if t['to_user']==user['username'] else 'OUT'} {t['from_user'] if t['to_user']==user['username'] else t['to_user']}<br><small style='opacity:.5'>{t['note']}</small></td><td style='color:{'#4ade80' if t['to_user']==user['username'] else '#ff6b6b'}'>Rp {t['amount']:,}</td></tr>" for t in tx]) or "<tr><td colspan=3 style='text-align:center;opacity:.5'>Belum ada transaksi</td></tr>"
+    return page(f"<div class=card card-gold><small>{user['account_no']} | {user['created_at']} | PIN: {user['pin']}</small><h2 style='margin:6px 0'>Halo, {user['username']} </h2><h1 style='font-size:32px'>Rp {user['balance']:,}</h1><span class=badge style='background:#0003;color:#000;border-color:#0003'>Saldo Aktif | PIN Protected</span></div><div class=card><div class=grid2><a href='/transfer' class='btn btn-gold'> Transfer + PIN</a><a href='/topup' class='btn btn-dark'> TopUp</a><a href='/qris' class='btn btn-dark'> QRIS</a><a href='/history' class='btn btn-dark'> History</a></div><a href='/ganti-pin' class='btn btn-outline' style='margin-top:8px'> Ganti PIN</a></div><div class=card><h3>Transaksi Terakhir</h3><table><tr><th>Tgl</th><th>Detail</th><th>Nominal</th></tr>{tx_html}</table><br><a href='/history' class='btn btn-outline'>Lihat Semua</a></div>", user=user)
 
 @app.route("/transfer", methods=["GET","POST"])
 def transfer():
@@ -107,7 +107,7 @@ def transfer():
         to=request.form["to"].strip().lower();amt=int(request.form["amount"] or 0);note=request.form["note"].strip() or "Transfer";pin=request.form["pin"].strip()
         if pin!=me["pin"]:
             conn.close()
-            return page("<div class=card style='border-color:#ff4444'>âŒ PIN SALAH! <br> PIN kamu: "+me["pin"]+"<br><br><a href='/transfer' class='btn btn-outline'>Coba Lagi</a></div>", user=me)
+            return page("<div class=card style='border-color:#ff4444'>ERROR: PIN SALAH! <br> PIN kamu: "+me["pin"]+"<br><br><a href='/transfer' class='btn btn-outline'>Coba Lagi</a></div>", user=me)
         target=conn.execute("SELECT * FROM users WHERE LOWER(username)=?",(to,)).fetchone()
         if not target: msg=f"<div class=card style='border-color:#ff4444'>User {to} tidak ketemu!</div>"
         elif me["balance"]<amt: msg="<div class=card style='border-color:#ff4444'>Saldo tidak cukup!</div>"
@@ -119,7 +119,7 @@ def transfer():
             return redirect("/dashboard")
     conn.close()
     options = "".join([f"<option value='{u['username']}'>{u['username']}</option>" for u in all_u])
-    return page(f"{msg}<div class=card><h2>ðŸ’¸ Transfer + PIN</h2><form method=POST><label>Ke Username</label><input list=userlist name=to placeholder='Ketik username' required><datalist id=userlist>{options}</datalist><label>Nominal</label><input name=amount type=number placeholder='100000' required><label>Catatan</label><input name=note placeholder='Buat makan sultan'><label>ðŸ”‘ PIN 6 Digit</label><input name=pin type=password inputmode=numeric placeholder='Masukkan PIN kamu' required maxlength=6><button class='btn btn-gold'>KIRIM + VERIFIKASI PIN</button></form><br><small style='opacity:.5'>User: {', '.join([u['username'] for u in all_u]) or 'Belum ada'}</small></div><a href='/dashboard' class='btn btn-outline'>â† Dashboard</a>", user=me)
+    return page(f"{msg}<div class=card><h2> Transfer + PIN</h2><form method=POST><label>Ke Username</label><input list=userlist name=to placeholder='Ketik username' required><datalist id=userlist>{options}</datalist><label>Nominal</label><input name=amount type=number placeholder='100000' required><label>Catatan</label><input name=note placeholder='Buat makan sultan'><label> PIN 6 Digit</label><input name=pin type=password inputmode=numeric placeholder='Masukkan PIN kamu' required maxlength=6><button class='btn btn-gold'>KIRIM + VERIFIKASI PIN</button></form><br><small style='opacity:.5'>User: {', '.join([u['username'] for u in all_u]) or 'Belum ada'}</small></div><a href='/dashboard' class='btn btn-outline'>Kembali Dashboard</a>", user=me)
 
 @app.route("/ganti-pin", methods=["GET","POST"])
 def ganti_pin():
@@ -133,7 +133,7 @@ def ganti_pin():
         conn.execute("UPDATE users SET pin=? WHERE id=?",(new,me["id"]));conn.commit();conn.close()
         return redirect("/dashboard")
     conn.close()
-    return page(f"<div class=card><h2>ðŸ”‘ Ganti PIN</h2><p>PIN sekarang: {me['pin']}</p><form method=POST><input name=old_pin placeholder='PIN Lama' required><input name=new_pin placeholder='PIN Baru 6 digit' required maxlength=6><button class='btn btn-gold'>GANTI PIN</button></form></div><a href='/dashboard' class='btn btn-outline'>â† Dashboard</a>", user=me)
+    return page(f"<div class=card><h2> Ganti PIN</h2><p>PIN sekarang: {me['pin']}</p><form method=POST><input name=old_pin placeholder='PIN Lama' required><input name=new_pin placeholder='PIN Baru 6 digit' required maxlength=6><button class='btn btn-gold'>GANTI PIN</button></form></div><a href='/dashboard' class='btn btn-outline'>Kembali Dashboard</a>", user=me)
 
 @app.route("/topup", methods=["GET","POST"])
 def topup():
@@ -150,28 +150,28 @@ def topup():
         conn.commit();conn.close()
         return redirect("/dashboard")
     conn.close()
-    return page("<div class=card><h2>ðŸ’° TopUp Sultan</h2><p><span class=badge>Bonus 10% jika >=50jt</span></p><form method=POST><label>Nominal</label><input name=amount type=number placeholder='50000000' required><label>Metode</label><select name=method><option>BCA VA</option><option>GoPay</option><option>OVO</option><option>QRIS</option></select><button class='btn btn-gold'>TOPUP SEKARANG</button></form></div><a href='/dashboard' class='btn btn-outline'>â† Dashboard</a>", user=me)
+    return page("<div class=card><h2> TopUp Sultan</h2><p><span class=badge>Bonus 10% jika >=50jt</span></p><form method=POST><label>Nominal</label><input name=amount type=number placeholder='50000000' required><label>Metode</label><select name=method><option>BCA VA</option><option>GoPay</option><option>OVO</option><option>QRIS</option></select><button class='btn btn-gold'>TOPUP SEKARANG</button></form></div><a href='/dashboard' class='btn btn-outline'>Kembali Dashboard</a>", user=me)
 
 @app.route("/qris")
 def qris():
     if "user" not in session: return redirect("/login")
     u=session["user"]
-    return page(f"<div class=card style='text-align:center'><h2>ðŸ“± QRIS BANK JENSEN</h2><p>{u['account_no']}<br>{u['username']}</p><div style='background:white;padding:20px;border-radius:16px;margin:20px auto;max-width:280px'><img src='https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=BANKJENSEN-{u['username']}-{u['account_no']}' style='width:100%'></div></div><a href='/dashboard' class='btn btn-outline'>â† Dashboard</a>", user=u)
+    return page(f"<div class=card style='text-align:center'><h2> QRIS BANK JENSEN</h2><p>{u['account_no']}<br>{u['username']}</p><div style='background:white;padding:20px;border-radius:16px;margin:20px auto;max-width:280px'><img src='https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=BANKJENSEN-{u['username']}-{u['account_no']}' style='width:100%'></div></div><a href='/dashboard' class='btn btn-outline'>Kembali Dashboard</a>", user=u)
 
 @app.route("/history")
 def history():
     if "user" not in session: return redirect("/login")
     conn=get_db();user=conn.execute("SELECT * FROM users WHERE id=?",(session["user"]["id"],)).fetchone()
     tx=conn.execute("SELECT * FROM transaksi WHERE from_user=? OR to_user=? ORDER BY id DESC",(user["username"],user["username"])).fetchall();conn.close()
-    rows="".join([f"<tr><td>{t['created_at']}</td><td>{t['from_user']} â†’ {t['to_user']}<br><small>{t['note']}</small></td><td>Rp {t['amount']:,}</td></tr>" for t in tx])
-    return page(f"<div class=card><h2>ðŸ“œ History {user['username']}</h2><p>Saldo: Rp {user['balance']:,} | PIN: {user['pin']}</p><table><tr><th>Waktu</th><th>Transaksi</th><th>Nominal</th></tr>{rows or '<tr><td colspan=3> Kosong </td></tr>'}</table></div><a href='/dashboard' class='btn btn-outline'>â† Dashboard</a>", user=user)
+    rows="".join([f"<tr><td>{t['created_at']}</td><td>{t['from_user']} -> {t['to_user']}<br><small>{t['note']}</small></td><td>Rp {t['amount']:,}</td></tr>" for t in tx])
+    return page(f"<div class=card><h2> History {user['username']}</h2><p>Saldo: Rp {user['balance']:,} | PIN: {user['pin']}</p><table><tr><th>Waktu</th><th>Transaksi</th><th>Nominal</th></tr>{rows or '<tr><td colspan=3> Kosong </td></tr>'}</table></div><a href='/dashboard' class='btn btn-outline'>Kembali Dashboard</a>", user=user)
 
 @app.route("/admin")
 def admin():
     if "user" not in session or session["user"]["username"]!="admin": return redirect("/login")
     conn=get_db();users=conn.execute("SELECT * FROM users WHERE username!='admin' ORDER BY id DESC").fetchall();total=conn.execute("SELECT COUNT(*), SUM(balance) FROM users WHERE username!='admin'").fetchone();conn.close()
-    cards="".join([f"<div class=card><b>{u['username']}</b> <small>{u['account_no']} | PIN:{u['pin']}</small><br>Rp {u['balance']:,} {'ðŸ”’ BLOCKED' if u['is_blocked'] else 'âœ… Aktif'}<br><br><div class=grid2><a href='/admin/add/{u['id']}' class='btn btn-gold' style='padding:8px;font-size:12px'>+10jt</a><a href='/admin/block/{u['id']}' class='btn btn-dark' style='padding:8px;font-size:12px'>{'Unblock' if u['is_blocked'] else 'Block'}</a></div></div>" for u in users])
-    return page(f"<div class=card card-gold><h2>ðŸ‘‘ ADMIN DEWA</h2><p>Total: {total[0] or 0} | Saldo: Rp {total[1] or 0:,}</p><a href='/admin/bunga' class='btn btn-dark'>ðŸ’¸ Bagi Bunga 5% Semua</a></div>{cards or '<div class=card>Belum ada nasabah</div>'}", user=session["user"])
+    cards="".join([f"<div class=card><b>{u['username']}</b> <small>{u['account_no']} | PIN:{u['pin']}</small><br>Rp {u['balance']:,} {' BLOCKED' if u['is_blocked'] else ' Aktif'}<br><br><div class=grid2><a href='/admin/add/{u['id']}' class='btn btn-gold' style='padding:8px;font-size:12px'>+10jt</a><a href='/admin/block/{u['id']}' class='btn btn-dark' style='padding:8px;font-size:12px'>{'Unblock' if u['is_blocked'] else 'Block'}</a></div></div>" for u in users])
+    return page(f"<div class=card card-gold><h2> ADMIN DEWA</h2><p>Total: {total[0] or 0} | Saldo: Rp {total[1] or 0:,}</p><a href='/admin/bunga' class='btn btn-dark'> Bagi Bunga 5% Semua</a></div>{cards or '<div class=card>Belum ada nasabah</div>'}", user=session["user"])
 
 @app.route("/admin/bunga")
 def bunga():
