@@ -1,0 +1,18 @@
+<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Transfer - BANK JENSEN</title>
+<style>body{margin:0;background:#050a14;color:white;font-family:sans-serif;padding:20px}
+.card{background:white;color:#0a2540;border-radius:20px;padding:25px;max-width:400px;margin:20px auto}
+input{width:100%;padding:13px;margin:8px 0;border-radius:10px;border:1px solid #ddd;box-sizing:border-box}
+button{width:100%;padding:13px;background:#d4af37;color:#0a2540;border:none;border-radius:10px;font-weight:900;margin-top:10px}
+a{color:#d4af37;text-decoration:none}.alert{background:#fee2e2;color:#dc2626;padding:10px;border-radius:8px;margin-bottom:10px;font-size:14px}</style></head><body>
+<a href="/dashboard">← Kembali</a>
+<div class="card">
+<h3 style="margin:0 0 5px 0">💸 TRANSFER SULTAN</h3>
+<p style="font-size:12px;color:#6b7280">Saldo: Rp {{ "{:,}".format(user['balance']).replace(',', '.') }}</p>
+{% with m=get_flashed_messages() %}{% if m %}<div class="alert">{{ m[0] }}</div>{% endif %}{% endwith %}
+<form method="POST">
+<input name="to" placeholder="Username tujuan (misal: admin)" required>
+<input name="amount" type="number" placeholder="Nominal (misal: 5000000)" required>
+<input name="note" placeholder="Catatan (misal: traktir kopi)">
+<button>KIRIM SEKARANG</button>
+</form>
+</div></body></html>

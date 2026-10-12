@@ -1,0 +1,36 @@
+<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Admin - BANK JENSEN</title>
+<style>
+body{margin:0;background:#050a14;color:white;font-family:sans-serif}
+.header{background:#0a1931;padding:20px;border-bottom:2px solid #d4af37;display:flex;justify-content:space-between}
+.stat{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:20px}
+.stat div{background:#0a1931;border:1px solid #d4af37;border-radius:12px;padding:15px;text-align:center}
+.stat b{color:#d4af37;font-size:20px}
+table{width:100%;border-collapse:collapse;background:white;color:#0a2540;border-radius:12px;overflow:hidden;margin:0 20px;width:calc(100% - 40px)}
+th{background:#0a2540;color:#d4af37;padding:12px;font-size:11px;letter-spacing:1px;text-align:left}
+td{padding:12px;font-size:13px;border-bottom:1px solid #eee}
+.btn{padding:6px 10px;border-radius:6px;text-decoration:none;font-size:11px;font-weight:700;margin-right:4px}
+.btn-block{background:#fee2e2;color:#dc2626}.btn-unblock{background:#dcfce7;color:#166534}.btn-add{background:#fef3c7;color:#92400e}
+a.logout{color:#94a3b8;text-decoration:none;font-size:13px}
+</style></head><body>
+<div class="header"><div><b>BANK JENSEN</b> <span style="color:#d4af37">• ADMIN VAULT</span></div><a class="logout" href="/logout">Logout</a></div>
+<div class="stat">
+<div><div style="font-size:11px;color:#94a3b8">TOTAL NASABAH</div><b>{{ total[0] or 0 }}</b></div>
+<div><div style="font-size:11px;color:#94a3b8">TOTAL DANA</div><b>Rp {{ "{:,}".format(total[1] or 0).replace(',', '.')[:12] }}..</b></div>
+</div>
+<table>
+<tr><th>NASABAH</th><th>NO. REK</th><th>SALDO</th><th>AKSI</th></tr>
+{% for u in users %}
+<tr>
+<td><b>{{ u['username'] }}</b><br><span style="font-size:10px;color:#6b7280">{{ u['created_at'] }} {% if u['is_blocked'] %}🔴 BLOKIR{% endif %}</span></td>
+<td style="font-size:11px">{{ u['account_no'] }}</td>
+<td><b>Rp {{ "{:,}".format(u['balance']).replace(',', '.')[:10] }}</b></td>
+<td>
+<a class="btn btn-add" href="/admin/add/{{ u['id'] }}">+10JT</a>
+{% if u['is_blocked'] %}<a class="btn btn-unblock" href="/admin/block/{{ u['id'] }}">BUKA</a>
+{% else %}<a class="btn btn-block" href="/admin/block/{{ u['id'] }}">BLOKIR</a>{% endif %}
+</td>
+</tr>
+{% endfor %}
+</table>
+<div style="text-align:center;margin:20px;color:#6b7280;font-size:11px">🔐 BANK JENSEN PRIVATE VAULT • SECURED BY JENSEN CORP</div>
+</body></html>
